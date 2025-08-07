@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Network of Top Computer Vision Scholars</title>
+    
+    <!-- Tailwind CSS for modern styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- vis.js for network graph visualization -->
+    <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+    
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Custom styles to complement Tailwind */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc; /* Tailwind's gray-50 */
+        }
+        #graph-container {
+            width: 100%;
+            height: 80vh;
+            background-color: white;
+            border-radius: 0.75rem; /* Tailwind's rounded-xl */
+            border: 1px solid #e5e7eb; /* Tailwind's gray-200 */
+        }
+        /* Custom scrollbar for info panel */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f5f9; /* gray-100 */
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #94a3b8; /* gray-400 */
+            border-radius: 3px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #64748b; /* gray-500 */
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <!-- Header Section -->
+    <header class="bg-white shadow-sm">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+            <div>
+                <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">Top Scholars in Computer Vision</h1>
+                <p id="last-updated" class="mt-1 text-sm text-gray-500 italic"></p>
+                <script>
+                  // Automatically set the "Last updated" date to today's date in YYYY-MM-DD format
+                  document.addEventListener('DOMContentLoaded', function() {
+                    const today = new Date();
+                    const yyyy = today.getFullYear();
+                    const mm = String(today.getMonth() + 1).padStart(2, '0');
+                    const dd = String(today.getDate()).padStart(2, '0');
+                    const formatted = `${yyyy}-${mm}-${dd}`;
+                    document.getElementById('last-updated').textContent = `Last updated: ${formatted}`;
+                  });
+                </script>
+                <p class="mt-1 text-sm sm:text-base text-gray-600">An interactive database of influential researchers.</p>
+            </div>
+            <div class="relative">
+                <input type="text" id="search-input" placeholder="Search for a scholar..." class="w-48 sm:w-64 p-2 pl-4 pr-10 border border-gray-300 rounded-full shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-300">
+                <button id="search-button" class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-indigo-600">
+                    <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                        <path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z" clip-rule="evenodd" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="container mx-auto p-4 sm:p-6 lg:p-8">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
+
+            <!-- Controls and Info Panel (Left Column) -->
+            <aside class="lg:col-span-1 space-y-6">
+                <!-- Filters Card -->
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200">
+                    <h2 class="text-xl font-semibold mb-4 text-gray-900">Filters</h2>
+                    <div class="space-y-5">
+                        <div>
+                            <label for="organization-filter" class="block text-sm font-medium text-gray-700 mb-1">Organization</label>
+                            <select id="organization-filter" class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                                <option value="all">All Organizations</option>
+                                <!-- Options populated by JS -->
+                            </select>
+                        </div>
+                        <div>
+                            <label for="citations-filter" class="block text-sm font-medium text-gray-700 mb-1">Minimum Citations</label>
+                            <input type="range" id="citations-filter" min="5000" max="500000" step="1000" value="5000" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                            <div class="text-right text-sm text-gray-600 mt-1">
+                                <span id="citations-value" class="font-medium">5,000</span>+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Scholar Details Card -->
+                <div id="info-panel-container" class="bg-white p-5 rounded-xl shadow-sm border border-gray-200">
+                    <div id="info-panel" class="h-[45vh] overflow-y-auto custom-scrollbar pr-2">
+                        <h2 class="text-xl font-semibold text-gray-900">Scholar Details</h2>
+                        <p class="mt-2 text-gray-500">Click on a scholar in the network to view their details.</p>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Network Graph (Right Column) -->
+            <div class="lg:col-span-2">
+                <div id="graph-container"></div>
+            </div>
+        </div>
+    </main>
+    
+    <!-- IMPORTANT: Load the database file first -->
+    <script src="./database.js"></script>
+
+    <script>
+        // --- FIX ---
+        // Removed the 'DOMContentLoaded' event listener. Since this script tag is at the end of the body,
+        // the DOM is already loaded. This also ensures that the preceding script 'database.js'
+        // has been loaded and executed, making the 'scholarDatabase' variable available.
+
+        // --- DOM ELEMENT REFERENCES ---
+        const container = document.getElementById('graph-container');
+        const infoPanel = document.getElementById('info-panel');
+        const orgFilter = document.getElementById('organization-filter');
+        const citationsFilter = document.getElementById('citations-filter');
+        const citationsValue = document.getElementById('citations-value');
+        const searchInput = document.getElementById('search-input');
+        const searchButton = document.getElementById('search-button');
+
+        // --- INITIALIZATION ---
+        // Populate organization filter dynamically
+        const allOrganizations = [];
+        scholarDatabase.scholars.forEach(s => {
+            if (s.organizations) {
+                allOrganizations.push(...s.organizations);
+            } else if (s.organization) {
+                allOrganizations.push(s.organization);
+            }
+        });
+        const organizations = [...new Set(allOrganizations)].sort();
+        organizations.forEach(org => {
+            const option = document.createElement('option');
+            option.value = org;
+            option.textContent = org;
+            orgFilter.appendChild(option);
+        });
+
+        // Create vis.js DataSets
+        const nodes = new vis.DataSet(scholarDatabase.scholars);
+        const edges = new vis.DataSet(scholarDatabase.relations);
+
+        // --- NETWORK GRAPH CONFIGURATION ---
+        const data = { nodes, edges };
+        const options = {
+            nodes: {
+                shape: 'dot',
+                font: {
+                    size: 16,
+                    color: '#1f2937', // gray-800
+                    face: 'Inter'
+                },
+                borderWidth: 3,
+                scaling: {
+                    label: {
+                        enabled: true,
+                        min: 16,
+                        max: 32
+                    }
+                }
+            },
+            edges: {
+                width: 1.5,
+                color: {
+                    color: '#94a3b8', // gray-400
+                    highlight: '#4f46e5', // indigo-600
+                    hover: '#6b7280' // gray-500
+                },
+                arrows: {
+                    to: { enabled: false }
+                }
+            },
+            physics: {
+                solver: 'forceAtlas2Based',
+                forceAtlas2Based: {
+                    gravitationalConstant: -50,
+                    centralGravity: 0.01,
+                    springConstant: 0.08,
+                    springLength: 150,
+                    damping: 0.4,
+                    avoidOverlap: 0.5
+                },
+                stabilization: { iterations: 150 }
+            },
+            interaction: {
+                hover: true,
+                tooltipDelay: 200,
+                navigationButtons: true,
+                keyboard: true
+            },
+            groups: {
+                'Industry': { color: { background: '#8b5cf6', border: '#6d28d9' }, shape: 'dot' }, // Purple
+                'Academia': { color: { background: '#f97316', border: '#c2410c' }, shape: 'dot' }, // Orange
+            }
+        };
+
+        const network = new vis.Network(container, data, options);
+
+        // --- EVENT LISTENERS AND HANDLERS ---
+        
+        // Filter event listeners
+        orgFilter.addEventListener('change', applyFilters);
+        citationsFilter.addEventListener('input', () => {
+            citationsValue.textContent = parseInt(citationsFilter.value).toLocaleString();
+            applyFilters();
+        });
+
+        // Search event listeners
+        searchButton.addEventListener('click', performSearch);
+        searchInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                performSearch();
+            }
+        });
+
+        // Network click event listener
+        network.on("click", (params) => {
+            if (params.nodes.length > 0) {
+                const nodeId = params.nodes[0];
+                updateInfoPanel(nodeId);
+            } else {
+                resetInfoPanel();
+            }
+        });
+
+        // --- CORE FUNCTIONS ---
+        
+        /**
+         * Executes the search for a scholar.
+         */
+        function performSearch() {
+            const query = searchInput.value.trim().toLowerCase();
+            if (!query) return;
+
+            const foundScholar = scholarDatabase.scholars.find(s => s.label.toLowerCase().includes(query));
+
+            searchInput.classList.remove('border-red-500'); // Reset error style
+
+            if (foundScholar) {
+                network.focus(foundScholar.id, {
+                    scale: 1.5,
+                    animation: true
+                });
+                network.selectNodes([foundScholar.id]);
+                updateInfoPanel(foundScholar.id);
+            } else {
+                network.unselectAll();
+                resetInfoPanel();
+                searchInput.classList.add('border-red-500');
+                setTimeout(() => {
+                    searchInput.classList.remove('border-red-500');
+                }, 2000);
+            }
+        }
+
+        /**
+         * Filters the nodes displayed on the graph based on current filter settings.
+         */
+        function applyFilters() {
+            const selectedOrg = orgFilter.value;
+            const minCitations = parseInt(citationsFilter.value);
+
+            const view = new vis.DataView(nodes, {
+                filter: (scholar) => {
+                    let orgMatch = selectedOrg === 'all';
+                    if (selectedOrg !== 'all') {
+                        if (scholar.organizations) {
+                            orgMatch = scholar.organizations.includes(selectedOrg);
+                        } else if (scholar.organization) {
+                            orgMatch = scholar.organization === selectedOrg;
+                        }
+                    }
+                    const citationMatch = scholar.citations >= minCitations;
+                    return orgMatch && citationMatch;
+                }
+            });
+            
+            network.setData({ nodes: view, edges: edges });
+        }
+
+        /**
+         * Updates the info panel with details of the selected scholar.
+         * @param {number} nodeId - The ID of the selected scholar node.
+         */
+        function updateInfoPanel(nodeId) {
+            const scholar = scholarDatabase.scholars.find(s => s.id === nodeId);
+            const publications = scholarDatabase.publications[nodeId] || [];
+
+            let publicationsHTML = '<div class="space-y-3 mt-4">';
+            if (publications.length > 0) {
+                publications.forEach(p => {
+                    publicationsHTML += `
+                        <div class="p-3 bg-gray-50 rounded-lg border border-gray-200">
+                            <p class="font-semibold text-gray-800">${p.title}</p>
+                            <div class="text-xs text-gray-500 mt-1 flex flex-wrap gap-x-3 gap-y-1">
+                                <span>Citations: <strong>${p.citations.toLocaleString()}</strong></span>
+                                <span>${p.conference}, ${p.year}</span>
+                                ${p.award ? `<span class="font-bold text-emerald-600">🏆 ${p.award}</span>` : ''}
+                            </div>
+                        </div>`;
+                });
+            } else {
+                publicationsHTML += '<p class="text-sm text-gray-500">No representative works listed in this dataset.</p>';
+            }
+            publicationsHTML += '</div>';
+
+            infoPanel.innerHTML = `
+                <h2 class="text-xl font-bold text-gray-900">${scholar.label}</h2>
+                ${scholar.lifespan ? `<p class="text-sm text-gray-500 -mt-1">${scholar.lifespan}</p>` : ''}
+                <p class="text-sm text-gray-600 font-medium mt-2">${scholar.organizations ? scholar.organizations.join(' • ') : scholar.organization}</p>
+                ${scholar.status ? `<p class="text-sm text-gray-600 mt-1">${scholar.status}</p>` : ''}
+                <p class="text-sm text-gray-500 mt-1">Approx. Citations: <strong>${scholar.citations.toLocaleString()}</strong></p>
+                ${scholar.website ? `<p class="mt-2"><a href="${scholar.website}" target="_blank" class="text-sm text-indigo-600 hover:text-indigo-800 hover:underline">Personal Website ↗</a></p>` : ''}
+                ${scholar.awards && scholar.awards.length > 0 ? `
+                    <div class="mt-3">
+                        <h4 class="text-sm font-semibold text-gray-800">Awards & Honors</h4>
+                        <ul class="mt-1 space-y-1">
+                            ${scholar.awards.map(award => `
+                                <li class="text-sm text-gray-600">🏆 ${award}</li>
+                            `).join('')}
+                        </ul>
+                    </div>
+                ` : ''}
+                <h3 class="text-lg font-semibold text-gray-800 mt-5 mb-2">Representative Works</h3>
+                ${publicationsHTML}
+            `;
+        }
+        
+        /**
+         * Resets the info panel to its default state.
+         */
+        function resetInfoPanel() {
+            infoPanel.innerHTML = `
+                <h2 class="text-xl font-semibold text-gray-900">Scholar Details</h2>
+                <p class="mt-2 text-gray-500">Click on a scholar in the network to view their details.</p>
+            `;
+        }
+
+        // Initial call to set up the view
+        applyFilters();
+    </script>
+
+</body>
+</html>
