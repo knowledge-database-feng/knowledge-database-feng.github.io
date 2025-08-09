@@ -52,7 +52,7 @@
             </div>
             <div>
               <label for="citations-filter" class="block text-sm font-medium text-gray-700 mb-1">Minimum Citations</label>
-              <input id="citations-filter" type="range" min="0" max="500000" step="1000" value="0" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"/>
+              <input id="citations-filter" type="range" min="0" max="1000000" step="1000" value="0" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"/>
               <div class="text-right text-sm text-gray-600 mt-1"><span id="citations-value">0</span>+</div>
             </div>
           </div>
@@ -122,26 +122,54 @@
         if (!response.ok) throw new Error(`API Error: ${response.status} ${response.statusText}`);
         scholarDatabase = await response.json();
         scholarDatabase.scholars = scholarDatabase.scholars || [];
+        scholarDatabase.relations = scholarDatabase.relations || [];
+        scholarDatabase.publications = scholarDatabase.publications || {};
         initializeGraph();
       } catch (error) {
         console.error('Initialization Error:', error);
-        container.innerHTML = `<div class="p-8 text-center text-red-600"><strong>Error:</strong> Could not load data from the server.</div>`;
+        container.innerHTML = `<div class="p-8 text-center text-red-600"><strong>Error:</strong> Could not load data from the server. Please ensure the database is connected and has been seeded with data.</div>`;
       }
     });
 
     // --- Graph and UI Setup ---
     function initializeGraph() {
       buildOrgFilter();
+      
       const nodesData = scholarDatabase.scholars.map(s => ({
         ...s,
-        value: Number.isFinite(s.citations) ? s.citations / 10000 : 10,
+        value: Number.isFinite(s.citations) ? Math.max(1, s.citations / 20000) : 10,
         _score: Number.isFinite(s.citations) ? s.citations : 0
       }));
+
       nodes.clear();
       edges.clear();
       nodes.add(nodesData);
-      edges.add(scholarDatabase.relations || []);
-      const options = { /* vis.js options from your original file */ };
+      edges.add(scholarDatabase.relations);
+
+      const options = {
+        nodes: {
+          shape: 'dot',
+          font: { size: 16, color: '#1f2937', face: 'Inter' },
+          borderWidth: 3,
+          scaling: { label: { enabled: true, min: 16, max: 32 } }
+        },
+        edges: {
+          width: 1.5,
+          color: { color: '#94a3b8', highlight: '#4f46e5', hover: '#6b7280' },
+          arrows: { to: { enabled: false } }
+        },
+        physics: {
+          solver: 'forceAtlas2Based',
+          forceAtlas2Based: { gravitationalConstant: -50, centralGravity: 0.01, springConstant: 0.08, springLength: 150, damping: 0.4, avoidOverlap: 0.5 },
+          stabilization: { iterations: 150 }
+        },
+        interaction: { hover: true, tooltipDelay: 200, navigationButtons: true, keyboard: true },
+        groups: {
+          'Industry': { color: { background: '#8b5cf6', border: '#6d28d9' }, shape: 'dot' },
+          'Academia': { color: { background: '#f97316', border: '#c2410c' }, shape: 'dot' }
+        }
+      };
+
       network = new vis.Network(container, { nodes, edges }, options);
       network.once('stabilizationIterationsDone', () => network.fit({ animation: true }));
       setupEventListeners();
@@ -218,10 +246,97 @@
     }
 
     // --- UI Update Functions (Filters, Search, Info Panel) ---
-    function applyFilters() { /* ... function code from your original file ... */ }
-    function performSearch() { /* ... function code from your original file ... */ }
-    function updateInfoPanel(nodeId) { /* ... function code from your original file ... */ }
-    function resetInfoPanel() { infoPanel.innerHTML = `<h2 class="text-xl font-semibold text-gray-900">Scholar Details</h2><p class="mt-2 text-gray-500">Click a scholar or add a new one.</p>`; }
+    function applyFilters() {
+      if (!network) return;
+      const selectedOrg = orgFilter.value;
+      const minScore = parseInt(citationsFilter.value, 10) || 0;
+
+      const view = new vis.DataView(nodes, {
+        filter: (scholar) => {
+          let orgMatch = selectedOrg === 'all';
+          if (!orgMatch) {
+            if (Array.isArray(scholar.organizations)) orgMatch = scholar.organizations.includes(selectedOrg);
+            else if (scholar.organization) orgMatch = scholar.organization === selectedOrg;
+          }
+          const score = Number.isFinite(scholar._score) ? scholar._score : 0;
+          return orgMatch && (score >= minScore);
+        }
+      });
+      network.setData({ nodes: view, edges });
+    }
+    
+    function performSearch() {
+      if (!network) return;
+      const q = searchInput.value.trim().toLowerCase();
+      if (!q) return;
+
+      const foundNodes = nodes.get({ 
+          filter: item => (item.label || '').toLowerCase().includes(q) 
+      });
+      
+      searchInput.classList.remove('border-red-500');
+      if (foundNodes.length > 0) {
+        network.focus(foundNodes[0].id, { scale: 1.5, animation: true });
+        network.selectNodes([foundNodes[0].id]);
+        updateInfoPanel(foundNodes[0].id);
+      } else {
+        network.unselectAll();
+        resetInfoPanel();
+        searchInput.classList.add('border-red-500');
+        setTimeout(() => searchInput.classList.remove('border-red-500'), 2000);
+      }
+    }
+    
+    function updateInfoPanel(nodeId) {
+      const scholar = nodes.get(nodeId);
+      if (!scholar) return;
+
+      const publications = (scholarDatabase.publications && scholarDatabase.publications[nodeId]) || [];
+      const score = scholar._score;
+
+      let publicationsHTML = '<div class="space-y-3 mt-4">';
+      if (publications.length > 0) {
+        publications.forEach(p => {
+          const pc = Number.isFinite(p.citations) ? p.citations : 0;
+          publicationsHTML += `
+            <div class="p-3 bg-gray-50 rounded-lg border border-gray-200">
+              <p class="font-semibold text-gray-800">${p.title}</p>
+              <div class="text-xs text-gray-500 mt-1 flex flex-wrap gap-x-3 gap-y-1">
+                <span>Citations: <strong>${pc.toLocaleString()}</strong></span>
+                <span>${p.conference || ''}${p.conference && p.year ? ', ' : ''}${p.year || ''}</span>
+                ${p.award ? `<span class="font-bold text-emerald-600">🏆 ${p.award}</span>` : ''}
+              </div>
+            </div>`;
+        });
+      } else {
+        publicationsHTML += '<p class="text-sm text-gray-500">No representative works listed in this dataset.</p>';
+      }
+      publicationsHTML += '</div>';
+
+      infoPanel.innerHTML = `
+        <h2 class="text-xl font-bold text-gray-900">${scholar.label}</h2>
+        ${scholar.lifespan ? `<p class="text-sm text-gray-500 -mt-1">${scholar.lifespan}</p>` : ''}
+        <p class="text-sm text-gray-600 font-medium mt-2">
+          ${Array.isArray(scholar.organizations) ? scholar.organizations.join(' • ') : (scholar.organization || '')}
+        </p>
+        ${scholar.status ? `<p class="text-sm text-gray-600 mt-1">${scholar.status}</p>` : ''}
+        <p class="text-sm text-gray-500 mt-1">Citations: <strong>${Number(score).toLocaleString()}</strong></p>
+        ${scholar.website ? `<p class="mt-2"><a href="${scholar.website}" target="_blank" class="text-sm text-indigo-600 hover:text-indigo-800 hover:underline">Personal Website ↗</a></p>` : ''}
+        ${Array.isArray(scholar.awards) && scholar.awards.length ? `
+          <div class="mt-3">
+            <h4 class="text-sm font-semibold text-gray-800">Awards & Honors</h4>
+            <ul class="mt-1 space-y-1">
+              ${scholar.awards.map(a => `<li class="text-sm text-gray-600">🏆 ${a}</li>`).join('')}
+            </ul>
+          </div>` : ''}
+        <h3 class="text-lg font-semibold text-gray-800 mt-5 mb-2">Representative Works</h3>
+        ${publicationsHTML}
+      `;
+    }
+
+    function resetInfoPanel() { 
+      infoPanel.innerHTML = `<h2 class="text-xl font-semibold text-gray-900">Scholar Details</h2><p class="mt-2 text-gray-500">Click a scholar or add a new one.</p>`; 
+    }
   </script>
 </body>
 </html>
