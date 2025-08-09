@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Interactive Network of Top Computer Vision Scholars</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+
+  <style>
+    body { font-family:'Inter',sans-serif; background-color:#f8fafc; }
+    #graph-container { width:100%; height:80vh; background:#fff; border-radius:.75rem; border:1px solid #e5e7eb; }
+    .custom-scrollbar::-webkit-scrollbar { width:6px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background:#f1f5f9; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background:#94a3b8; border-radius:3px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background:#64748b; }
+  </style>
+</head>
+<body class="text-gray-800">
+  <header class="bg-white shadow-sm">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+      <div>
+        <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">Top Scholars in Computer Vision</h1>
+        <p id="last-updated" class="mt-1 text-sm text-gray-500 italic"></p>
+        <p class="mt-1 text-sm sm:text-base text-gray-600">A dynamic, editable database of influential researchers.</p>
+      </div>
+      <div class="relative">
+        <input id="search-input" type="text" placeholder="Search for a scholar..." class="w-48 sm:w-64 p-2 pl-4 pr-10 border border-gray-300 rounded-full shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-300"/>
+        <button id="search-button" class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-indigo-600" aria-label="Search">
+          <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z" clip-rule="evenodd"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container mx-auto p-4 sm:p-6 lg:p-8">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
+      <aside class="lg:col-span-1 space-y-6">
+        <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200">
+          <h2 class="text-xl font-semibold mb-4 text-gray-900">Filters</h2>
+          <div class="space-y-5">
+            <div>
+              <label for="organization-filter" class="block text-sm font-medium text-gray-700 mb-1">Organization</label>
+              <select id="organization-filter" class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                <option value="all">All Organizations</option>
+              </select>
+            </div>
+            <div>
+              <label for="citations-filter" class="block text-sm font-medium text-gray-700 mb-1">Minimum Citations / Publications</label>
+              <input id="citations-filter" type="range" min="0" max="500000" step="1000" value="0" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"/>
+              <div class="text-right text-sm text-gray-600 mt-1">
+                <span id="citations-value" class="font-medium">0</span>+
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="info-panel-container" class="bg-white p-5 rounded-xl shadow-sm border border-gray-200">
+          <div id="info-panel" class="h-[45vh] overflow-y-auto custom-scrollbar pr-2">
+            <h2 class="text-xl font-semibold text-gray-900">Scholar Details</h2>
+            <p class="mt-2 text-gray-500">Click on a scholar in the network to view their details.</p>
+          </div>
+        </div>
+      </aside>
+
+      <div class="lg:col-span-2">
+        <div id="graph-container">
+            <div class="w-full h-full flex items-center justify-center text-gray-500">Loading network...</div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script type="module">
+    // --- Global State ---
+    let scholarDatabase = { scholars: [], relations: [], publications: {} };
+    let network = null;
+    let nodes = new vis.DataSet([]);
+    let edges = new vis.DataSet([]);
+
+    // --- DOM refs ---
+    const container = document.getElementById('graph-container');
+    const infoPanel = document.getElementById('info-panel');
+    const orgFilter = document.getElementById('organization-filter');
+    const citationsFilter = document.getElementById('citations-filter');
+    const citationsValue = document.getElementById('citations-value');
+    const searchInput = document.getElementById('search-input');
+    const searchButton = document.getElementById('search-button');
+    const lastUpdatedEl = document.getElementById('last-updated');
+
+    // --- Main Initialization ---
+    document.addEventListener('DOMContentLoaded', async () => {
+      try {
+        const response = await fetch('/api/data');
+        if (!response.ok) {
+          throw new Error(`API Error: ${response.status} ${response.statusText}`);
+        }
+        scholarDatabase = await response.json();
+        
+        // Use a safe default if data is malformed
+        scholarDatabase.scholars = scholarDatabase.scholars || [];
+        scholarDatabase.relations = scholarDatabase.relations || [];
+        scholarDatabase.publications = scholarDatabase.publications || {};
+
+        initializeGraph();
+      } catch (error) {
+        console.error('Initialization Error:', error);
+        container.innerHTML = `<div class="p-8 text-center text-red-600"><strong>Error:</strong> Could not load data from the server. Please check the API and database connection.</div>`;
+      }
+    });
+
+    function initializeGraph() {
+      // --- Update Last Updated Date ---
+      const t = new Date();
+      const formatted = `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`;
+      lastUpdatedEl.textContent = `Database live as of: ${formatted}`;
+
+      // --- Build Org List for Filter ---
+      const allOrganizations = [];
+      scholarDatabase.scholars.forEach(s => {
+        if (Array.isArray(s.organizations)) allOrganizations.push(...s.organizations);
+        else if (s.organization) allOrganizations.push(s.organization);
+      });
+      const organizations = [...new Set(allOrganizations)].sort();
+      orgFilter.innerHTML = '<option value="all">All Organizations</option>'; // Clear existing
+      for (const org of organizations) {
+        const opt = document.createElement('option');
+        opt.value = org;
+        opt.textContent = org;
+        orgFilter.appendChild(opt);
+      }
+
+      // --- Prepare Vis.js Data ---
+      const nodesData = scholarDatabase.scholars.map(s => ({
+        ...s,
+        value: Number.isFinite(s.value) ? s.value : (Number.isFinite(s.publications) ? s.publications : 1),
+        _score: Number.isFinite(s.citations) ? s.citations : (Number.isFinite(s.publications) ? s.publications : (Number.isFinite(s.value) ? s.value : 0))
+      }));
+      nodes.clear();
+      edges.clear();
+      nodes.add(nodesData);
+      edges.add(scholarDatabase.relations);
+
+      // --- Network Options ---
+      const options = {
+        nodes: {
+          shape: 'dot',
+          font: { size: 16, color: '#1f2937', face: 'Inter' },
+          borderWidth: 3,
+          scaling: { label: { enabled: true, min: 16, max: 32 } }
+        },
+        edges: {
+          width: 1.5,
+          color: { color: '#94a3b8', highlight: '#4f46e5', hover: '#6b7280' },
+          arrows: { to: { enabled: false } }
+        },
+        physics: {
+          solver: 'forceAtlas2Based',
+          forceAtlas2Based: { gravitationalConstant: -50, centralGravity: 0.01, springConstant: 0.08, springLength: 150, damping: 0.4, avoidOverlap: 0.5 },
+          stabilization: { iterations: 150 }
+        },
+        interaction: { hover: true, tooltipDelay: 200, navigationButtons: true, keyboard: true },
+        groups: {
+          'Industry': { color: { background: '#8b5cf6', border: '#6d28d9' }, shape: 'dot' },
+          'Academia': { color: { background: '#f97316', border: '#c2410c' }, shape: 'dot' }
+        }
+      };
+
+      // --- Create Network ---
+      network = new vis.Network(container, { nodes, edges }, options);
+      network.once('stabilizationIterationsDone', () => network.fit({ animation: true }));
+
+      // --- Event Listeners ---
+      orgFilter.addEventListener('change', applyFilters);
+      citationsFilter.addEventListener('input', () => {
+        citationsValue.textContent = parseInt(citationsFilter.value, 10).toLocaleString();
+        applyFilters();
+      });
+      searchButton.addEventListener('click', performSearch);
+      searchInput.addEventListener('keydown', e => { if (e.key === 'Enter') performSearch(); });
+      network.on('click', params => {
+        if (params.nodes.length > 0) updateInfoPanel(params.nodes[0]);
+        else resetInfoPanel();
+      });
+
+      applyFilters(); // Initial render
+    }
+    
+    // --- Functions ---
+
+    function applyFilters() {
+      if (!network) return;
+      const selectedOrg = orgFilter.value;
+      const minScore = parseInt(citationsFilter.value, 10) || 0;
+
+      const view = new vis.DataView(nodes, {
+        filter: (scholar) => {
+          let orgMatch = selectedOrg === 'all';
+          if (!orgMatch) {
+            if (Array.isArray(scholar.organizations)) orgMatch = scholar.organizations.includes(selectedOrg);
+            else if (scholar.organization) orgMatch = scholar.organization === selectedOrg;
+          }
+          const score = Number.isFinite(scholar._score) ? scholar._score : 0;
+          return orgMatch && (score >= minScore);
+        }
+      });
+      network.setData({ nodes: view, edges });
+    }
+    
+    function performSearch() {
+      if (!network) return;
+      const q = searchInput.value.trim().toLowerCase();
+      if (!q) return;
+
+      const found = nodes.get({ 
+          filter: item => (item.label || '').toLowerCase().includes(q) 
+      });
+      
+      searchInput.classList.remove('border-red-500');
+      if (found.length > 0) {
+        network.focus(found[0].id, { scale: 1.5, animation: true });
+        network.selectNodes([found[0].id]);
+        updateInfoPanel(found[0].id);
+      } else {
+        network.unselectAll();
+        resetInfoPanel();
+        searchInput.classList.add('border-red-500');
+        setTimeout(() => searchInput.classList.remove('border-red-500'), 2000);
+      }
+    }
+    
+    function updateInfoPanel(nodeId) {
+      const scholar = nodes.get(nodeId);
+      if (!scholar) return;
+
+      const publications = (scholarDatabase.publications && scholarDatabase.publications[nodeId]) || [];
+      const score = scholar._score;
+
+      let publicationsHTML = '<div class="space-y-3 mt-4">';
+      if (publications.length > 0) {
+        publications.forEach(p => {
+          const pc = Number.isFinite(p.citations) ? p.citations : 0;
+          publicationsHTML += `
+            <div class="p-3 bg-gray-50 rounded-lg border border-gray-200">
+              <p class="font-semibold text-gray-800">${p.title}</p>
+              <div class="text-xs text-gray-500 mt-1 flex flex-wrap gap-x-3 gap-y-1">
+                <span>Citations: <strong>${pc.toLocaleString()}</strong></span>
+                <span>${p.conference || ''}${p.conference && p.year ? ', ' : ''}${p.year || ''}</span>
+                ${p.award ? `<span class="font-bold text-emerald-600">🏆 ${p.award}</span>` : ''}
+              </div>
+            </div>`;
+        });
+      } else {
+        publicationsHTML += '<p class="text-sm text-gray-500">No representative works listed in this dataset.</p>';
+      }
+      publicationsHTML += '</div>';
+
+      infoPanel.innerHTML = `
+        <h2 class="text-xl font-bold text-gray-900">${scholar.label}</h2>
+        ${scholar.lifespan ? `<p class="text-sm text-gray-500 -mt-1">${scholar.lifespan}</p>` : ''}
+        <p class="text-sm text-gray-600 font-medium mt-2">
+          ${Array.isArray(scholar.organizations) ? scholar.organizations.join(' • ') : (scholar.organization || '')}
+        </p>
+        ${scholar.status ? `<p class="text-sm text-gray-600 mt-1">${scholar.status}</p>` : ''}
+        <p class="text-sm text-gray-500 mt-1">Citations / Publications: <strong>${Number(score).toLocaleString()}</strong></p>
+        ${scholar.website ? `<p class="mt-2"><a href="${scholar.website}" target="_blank" class="text-sm text-indigo-600 hover:text-indigo-800 hover:underline">Personal Website ↗</a></p>` : ''}
+        ${Array.isArray(scholar.awards) && scholar.awards.length ? `
+          <div class="mt-3">
+            <h4 class="text-sm font-semibold text-gray-800">Awards & Honors</h4>
+            <ul class="mt-1 space-y-1">
+              ${scholar.awards.map(a => `<li class="text-sm text-gray-600">🏆 ${a}</li>`).join('')}
+            </ul>
+          </div>` : ''}
+        <h3 class="text-lg font-semibold text-gray-800 mt-5 mb-2">Representative Works</h3>
+        ${publicationsHTML}
+      `;
+    }
+
+    function resetInfoPanel() {
+      infoPanel.innerHTML = `
+        <h2 class="text-xl font-semibold text-gray-900">Scholar Details</h2>
+        <p class="mt-2 text-gray-500">Click on a scholar in the network to view their details, or add new data.</p>
+      `;
+    }
+
+  </script>
+</body>
+</html>
