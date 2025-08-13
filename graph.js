@@ -546,9 +546,18 @@ function showDetails(researcher) {
   let html = `<h2>${researcher.name}</h2>`;
   // Life span
   html += `<p><strong>Life span:</strong> ${researcher.lifeSpan}</p>`;
-  // Personal website (if available)
+  // Personal website (if available) - hidden but functional
   if (researcher.website) {
-    html += `<p><strong><i class="fas fa-globe"></i> Website:</strong> <a href="${researcher.website}" target="_blank" rel="noopener">${researcher.website}</a></p>`;
+    html += `<p><strong><i class="fas fa-globe"></i> Website:</strong> <a href="${researcher.website}" target="_blank" rel="noopener">Visit Website</a></p>`;
+  }
+
+  // Google Scholar (if available) - hidden but functional
+  if (researcher.scholarid) {
+    const scholarUrl = `https://scholar.google.com/citations?user=${researcher.scholarid}`;
+    html += `<p><strong><i class="fas fa-graduation-cap"></i> Google Scholar:</strong> <a href="${scholarUrl}" target="_blank" rel="noopener">View Profile</a></p>`;
+    
+    // Citations section under Google Scholar
+    html += '<p><strong>Total Citations:</strong> <span id="citation-count">Loading...</span></p>';
   }
   // Organizations
   if (researcher.organizations && researcher.organizations.length > 0) {
