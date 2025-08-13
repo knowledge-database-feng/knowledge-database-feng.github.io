@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>普通人、有好处、不排队，不可能三角</title>
+    <!-- Reuse the shared stylesheet for consistent styling -->
+    <link rel="stylesheet" href="../style.css" />
+    <!-- FontAwesome Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+      integrity="sha512-9QbxWzFH2O0lkcOjXfDveoxu48UUfZo0Sy0RKZ77N8BINU3CFAaj6MqFmoVoeAQMtk0iQF0EYh3QnPD6Fvq1Nw=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+    <!-- Include a Markdown parser so we can convert the blog post on the fly -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  </head>
+  <body>
+    <header>
+      <div class="container">
+        <h1>Blogs</h1>
+        <nav>
+          <ul>
+            <li><a href="../index.html"><i class="fas fa-home"></i> Home</a></li>
+            <li><a href="../blogs.html"><i class="fas fa-book"></i> Blogs</a></li>
+            <li><a href="../researchers.html"><i class="fas fa-project-diagram"></i> Researcher Graph</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="container">
+        <section class="blog-post">
+          <!-- Title of the post -->
+          <h2><i class="fas fa-file-alt"></i> 普通人、有好处、不排队，不可能三角</h2>
+          <div class="blog-meta">
+            <i class="fas fa-calendar"></i> January 2025
+          </div>
+          <div class="blog-tags">
+            <span class="blog-tag">Economics</span>
+            <span class="blog-tag">Life</span>
+            <span class="blog-tag">Philosophy</span>
+          </div>
+          <div id="markdown-content" class="markdown-content">Loading…</div>
+        </section>
+      </div>
+    </main>
+    <footer>
+      <div class="container">
+        <p>© 2025</p>
+      </div>
+    </footer>
+    <script>
+      // Enhanced markdown content with better examples and formatting
+      const markdownContent = `# 普通人、有好处、不排队，不可能三角
+
+“普通人、有好处、不排队，不可能三角”是一个网络流行语，它借用了经济学中的“不可能三角”理论，用来通俗地解释生活中常见的一种困境：**在任何一件事情上，“面向普通人”（门槛低、成本低）、“有好处”（质量好、收益高）和“不用排队”（能轻松获得）这三个优点，你最多只能同时拥有两个，不可能三者兼得。**
+
+这个说法的核心思想是，优质且稀缺的资源，必然会通过某种机制来筛选和分配。这种机制通常是时间成本、金钱成本或身份门槛。
+
+---
+### 1. 如果它“面向普通人”且“有好处”，那么必然“要排队”
+* **解释：** 当一个东西又好又便宜（或者免费）时，它必然会吸引大量的人。由于资源是有限的，为了得到它，你就必须付出时间成本来竞争，这就体现为“排队”。
+* **例子：**
+    * **网红餐厅或热门景点：** 价格亲民、味道/景色又好的地方，门口总是大排长龙。
+    * **专家义诊：** 知名专家提供的免费门诊，通常需要提前很久预约，或者现场排上几个小时的队。
+    * **抢购打折商品：** 比如双十一期间，物美价廉的商品需要你熬夜、拼网速才能抢到。
+
+---
+### 2. 如果它“面向普通人”且“不用排队”，那么通常“没好处”
+* **解释：** 如果一个东西谁都能轻松得到，不需要付出任何努力，那么它本身的价值和吸引力可能就不高，甚至可能是一个“坑”。
+* **例子：**
+    * **生育补贴：** 国家鼓励生育，对生育家庭给予补贴，但补贴金额很低,相对育儿成本可以忽略不计.
+    * **路边无人问津的打折商品：** 随时能买到，但质量可能堪忧，或者款式早已过时。
+    * **门槛极低的投资项目：** 宣称人人可参与、轻松赚大钱，却往往是骗局。
+    * **没有游客的“景点”：** 不用排队，随时可去，但可能景色平平，毫无特色。
+
+---
+### 3. 如果它“有好处”且“不用排队”，那么它“不面向普通人”
+* **解释：** 既能保证高质量、好体验，又能让你轻松获得，不用和大众一起竞争，那它必然设置了很高的门槛，通过金钱或社会地位来筛选用户，将“普通人”排除在外。
+* **例子：**
+    * **奢侈品或VIP服务：** 飞机头等舱、酒店行政酒廊、银行的私人银行服务，能提供极佳的体验且无需等待，但前提是支付高昂的费用。
+    * **稀缺的社会资源：** 某些通过特殊人脉或关系才能获得的优质机会或服务。
+
+---
+### 总结
+这个“不可能三角”是对社会资源分配规律的一种诙谐而现实的总结。它提醒我们，当面对一个看起来“好得不像话”的机会时，需要冷静思考：我为了得到它，付出的代价是什么？是时间（排队），是金钱（价格昂贵），还是需要承担未知的风险（可能是个坑）？理解了这一点，就能对生活中的各种选择和诱惑有更清醒的认识。`;
+
+      document.getElementById('markdown-content').innerHTML = marked.parse(markdownContent);
+    </script>
+  </body>
+</html>

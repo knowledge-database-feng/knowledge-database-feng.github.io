@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Blogs</title>
+    <link rel="stylesheet" href="style.css" />
+    <!-- FontAwesome Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+      integrity="sha512-9QbxWzFH2O0lkcOjXfDveoxu48UUfZo0Sy0RKZ77N8BINU3CFAaj6MqFmoVoeAQMtk0iQF0EYh3QnPD6Fvq1Nw=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+  </head>
+  <body>
+    <header>
+      <h1>Blogs</h1>
+      <nav>
+        <ul>
+          <li><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
+          <li><a href="blogs.html"><i class="fas fa-book"></i> Blogs</a></li>
+          <li><a href="researchers.html"><i class="fas fa-project-diagram"></i> Researcher Graph</a></li>
+        </ul>
+      </nav>
+    </header>
+    <main>
+      <section class="blog">
+        <h2><i class="fas fa-pencil-alt"></i> Your Notes and Thoughts</h2>
+        <p>
+          Use this space to record your reflections, ideas and suggestions from
+          your PhD journey. You may add posts freely—share research progress,
+          literature reviews, experiment notes or any thoughts related to PhD
+          life.
+        </p>
+        
+        <!-- Search and Filter Section -->
+        <div class="blog-search">
+          <input 
+            type="text" 
+            id="search-input" 
+            placeholder="Search blogs by title or tags..."
+            oninput="filterBlogs()"
+          />
+          <div class="tag-filter" id="tag-filter">
+            <button class="active" onclick="filterByTag('all')">All</button>
+            <button onclick="filterByTag('philosophy')">Philosophy</button>
+            <button onclick="filterByTag('economics')">Economics</button>
+            <button onclick="filterByTag('research')">Research</button>
+            <button onclick="filterByTag('life')">Life</button>
+            <button onclick="filterByTag('science')">Science</button>
+          </div>
+        </div>
+        
+        <!-- Blog List -->
+        <ul class="blog-list" id="blog-list">
+          <li class="blog-item" data-tags="philosophy,research,science" data-title="奥卡姆剃刀定律">
+            <h3><a href="blog/occams_razor.html">奥卡姆剃刀定律</a></h3>
+            <div class="blog-meta">
+              <i class="fas fa-calendar"></i> January 2025
+            </div>
+            <div class="blog-tags">
+              <span class="blog-tag">Philosophy</span>
+              <span class="blog-tag">Research</span>
+              <span class="blog-tag">Science</span>
+            </div>
+            <div class="blog-excerpt">
+              奥卡姆剃刀定律（Occam's Razor），也称为"奥卡姆的威廉定律"，是由14世纪英国哲学家、逻辑学家奥卡姆的威廉提出的一个原则。这个定律主张在面对多个解释时，最简单的解释通常是正确的。
+            </div>
+          </li>
+          
+          <li class="blog-item" data-tags="economics,life,philosophy" data-title="普通人、有好处、不排队，不可能三角">
+            <h3><a href="blog/triangle_1.html">普通人、有好处、不排队，不可能三角</a></h3>
+            <div class="blog-meta">
+              <i class="fas fa-calendar"></i> January 2025
+            </div>
+            <div class="blog-tags">
+              <span class="blog-tag">Economics</span>
+              <span class="blog-tag">Life</span>
+              <span class="blog-tag">Philosophy</span>
+            </div>
+            <div class="blog-excerpt">
+              "普通人、有好处、不排队，不可能三角"是一个网络流行语，它借用了经济学中的"不可能三角"理论，用来通俗地解释生活中常见的一种困境：在任何一件事情上，"面向普通人"、"有好处"和"不用排队"这三个优点，你最多只能同时拥有两个。
+            </div>
+          </li>
+        </ul>
+        
+        <div id="no-results" class="no-results" style="display: none;">
+          No blogs found matching your search criteria.
+        </div>
+      </section>
+    </main>
+    <footer>
+      <p>© 2025</p>
+    </footer>
+    
+    <script>
+      let currentTagFilter = 'all';
+      let currentSearchTerm = '';
+      
+      function filterBlogs() {
+        const searchTerm = document.getElementById('search-input').value.toLowerCase();
+        const blogItems = document.querySelectorAll('.blog-item');
+        const noResults = document.getElementById('no-results');
+        let visibleCount = 0;
+        
+        currentSearchTerm = searchTerm;
+        
+        blogItems.forEach(item => {
+          const title = item.getAttribute('data-title').toLowerCase();
+          const tags = item.getAttribute('data-tags').toLowerCase();
+          const matchesSearch = searchTerm === '' || title.includes(searchTerm) || tags.includes(searchTerm);
+          const matchesTag = currentTagFilter === 'all' || item.getAttribute('data-tags').includes(currentTagFilter);
+          
+          if (matchesSearch && matchesTag) {
+            item.style.display = 'block';
+            visibleCount++;
+          } else {
+            item.style.display = 'none';
+          }
+        });
+        
+        if (visibleCount === 0) {
+          noResults.style.display = 'block';
+        } else {
+          noResults.style.display = 'none';
+        }
+      }
+      
+      function filterByTag(tag) {
+        currentTagFilter = tag;
+        
+        // Update active button
+        document.querySelectorAll('.tag-filter button').forEach(btn => {
+          btn.classList.remove('active');
+        });
+        event.target.classList.add('active');
+        
+        // Re-apply filters
+        filterBlogs();
+      }
+      
+      // Initialize
+      document.addEventListener('DOMContentLoaded', function() {
+        filterBlogs();
+      });
+    </script>
+  </body>
+</html>

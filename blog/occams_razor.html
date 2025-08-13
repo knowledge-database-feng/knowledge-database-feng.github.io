@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>奥卡姆剃刀定律</title>
+    <!-- Reuse the shared stylesheet for consistent styling -->
+    <link rel="stylesheet" href="../style.css" />
+    <!-- FontAwesome Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+      integrity="sha512-9QbxWzFH2O0lkcOjXfDveoxu48UUfZo0Sy0RKZ77N8BINU3CFAaj6MqFmoVoeAQMtk0iQF0EYh3QnPD6Fvq1Nw=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+    <!-- Include a Markdown parser so we can convert the blog post on the fly -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  </head>
+  <body>
+    <header>
+      <div class="container">
+        <h1>Blogs</h1>
+        <nav>
+          <ul>
+            <li><a href="../index.html"><i class="fas fa-home"></i> Home</a></li>
+            <li><a href="../blogs.html"><i class="fas fa-book"></i> Blogs</a></li>
+            <li><a href="../researchers.html"><i class="fas fa-project-diagram"></i> Researcher Graph</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="container">
+        <section class="blog-post">
+          <!-- Title of the post -->
+          <h2><i class="fas fa-file-alt"></i> 奥卡姆剃刀定律</h2>
+          <div class="blog-meta">
+            <i class="fas fa-calendar"></i> January 2025
+          </div>
+          <div class="blog-tags">
+            <span class="blog-tag">Philosophy</span>
+            <span class="blog-tag">Research</span>
+            <span class="blog-tag">Science</span>
+          </div>
+          <div id="markdown-content" class="markdown-content">Loading…</div>
+        </section>
+      </div>
+    </main>
+    <footer>
+      <div class="container">
+        <p>© 2025</p>
+      </div>
+    </footer>
+    <script>
+      // Enhanced markdown content with better examples and formatting
+      const markdownContent = `# 奥卡姆剃刀定律 (Occam's Razor)
+
+## 定义
+
+奥卡姆剃刀定律（Occam's Razor），也称为"奥卡姆的威廉定律"，是由14世纪英国哲学家、逻辑学家奥卡姆的威廉（William of Ockham）提出的一个原则。这个定律主张在面对多个解释时，**最简单的解释通常是正确的**。
+
+> "如无必要，勿增实体" (Entities should not be multiplied beyond necessity)
+
+## 核心原理
+
+奥卡姆剃刀定律的核心思想是：
+
+1. **简洁性优先** - 在解释现象时，优先选择假设最少的理论
+2. **避免过度复杂化** - 不要为了解释而引入不必要的复杂性
+3. **实用性导向** - 选择最实用的解释，而不是最复杂的
+
+## 在科学研究中的应用
+
+### 实验设计
+- 设计实验时，控制变量要尽可能少
+- 避免引入不必要的实验条件
+- 优先选择简单的实验方法
+
+### 理论构建
+- 构建理论时，假设要尽可能少
+- 避免引入无法验证的假设
+- 优先选择解释力强且简洁的理论
+
+### 数据分析
+- 选择最简单的统计模型
+- 避免过度拟合数据
+- 优先选择可解释性强的模型
+
+## 代码示例
+
+在机器学习中，奥卡姆剃刀定律体现在模型选择上：
+
+\`\`\`python
+# 复杂模型（可能过拟合）
+complex_model = RandomForestClassifier(
+    n_estimators=1000,
+    max_depth=20,
+    min_samples_split=2,
+    min_samples_leaf=1
+)
+
+# 简单模型（符合奥卡姆剃刀）
+simple_model = LogisticRegression(
+    C=1.0,
+    max_iter=1000
+)
+
+# 在验证集上比较
+complex_score = cross_val_score(complex_model, X_train, y_train, cv=5).mean()
+simple_score = cross_val_score(simple_model, X_train, y_train, cv=5).mean()
+
+print(f"复杂模型得分: {complex_score:.3f}")
+print(f"简单模型得分: {simple_score:.3f}")
+\`\`\`
+
+## 注意事项
+
+虽然奥卡姆剃刀定律很有用，但也要注意：
+
+| 情况 | 适用性 | 原因 |
+|------|--------|------|
+| 初步探索 | ✅ 适用 | 避免过早复杂化 |
+| 理论验证 | ✅ 适用 | 减少假设数量 |
+| 复杂系统 | ⚠️ 谨慎 | 可能过度简化 |
+| 创新研究 | ⚠️ 谨慎 | 可能限制思维 |
+
+## 总结
+
+奥卡姆剃刀定律是科学研究中的重要指导原则，它提醒我们：
+
+- **保持简洁** - 在同等解释力的情况下，选择更简单的理论
+- **避免过度复杂化** - 不要为了解释而引入不必要的复杂性
+- **实用导向** - 选择最实用的解释，而不是最复杂的
+
+在PhD研究中，这个原则可以帮助我们：
+- 设计更有效的实验
+- 构建更简洁的理论
+- 选择更合适的模型
+- 避免过度复杂化问题
+
+记住：**简单不等于简陋，复杂不等于深刻**。真正的智慧在于找到简单与准确的平衡点。`;
+
+      document.getElementById('markdown-content').innerHTML = marked.parse(markdownContent);
+    </script>
+  </body>
+</html>

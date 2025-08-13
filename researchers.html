@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Computer Vision Researcher Graph</title>
+    <link rel="stylesheet" href="style.css" />
+    <!-- FontAwesome Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+      integrity="sha512-9QbxWzFH2O0lkcOjXfDveoxu48UUfZo0Sy0RKZ77N8BINU3CFAaj6MqFmoVoeAQMtk0iQF0EYh3QnPD6Fvq1Nw=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+    <!-- D3.js CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js" defer></script>
+    <!-- Embedded dataset for the researcher graph.  Loading this script defines
+         a global `dataset` object on window.  It must be loaded before
+         graph.js so that the graph script can find `window.dataset`. -->
+    <script src="dataset.js" defer></script>
+    <script src="graph.js" defer></script>
+  </head>
+  <body>
+    <header>
+      <h1>Computer Vision Researcher Graph</h1>
+      <nav>
+        <ul>
+          <li><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
+          <li><a href="blogs.html"><i class="fas fa-book"></i> Blogs</a></li>
+          <li><a href="researchers.html"><i class="fas fa-project-diagram"></i> Researcher Graph</a></li>
+        </ul>
+      </nav>
+    </header>
+    <main class="researcher-page">
+      <!-- Search and filter bar. All controls are on the same level. -->
+      <div class="search-bar">
+        <select id="org-filter" aria-label="Filter by organization">
+          <option value="">All organizations</option>
+        </select>
+        <select id="country-filter" aria-label="Filter by country">
+          <option value="">The World</option>
+        </select>
+        <select id="region-filter" aria-label="Filter by region">
+          <option value="">All regions</option>
+        </select>
+        <input
+          type="text"
+          id="search-input"
+          placeholder="Search researchers..."
+          aria-label="Search researchers"
+        />
+        <!-- Reset button to clear all filters and search input -->
+        <button id="reset-filters" aria-label="Reset filters">
+          <i class="fas fa-undo"></i> Reset
+        </button>
+        <!-- Reset view button to show entire graph -->
+        <button id="reset-view" aria-label="Reset view">
+          <i class="fas fa-expand"></i> Reset View
+        </button>
+        <ul id="search-results" class="search-results"></ul>
+      </div>
+      <div class="graph-and-details">
+        <div id="graph-container">
+          <!-- D3 graph will be inserted here -->
+        </div>
+        <div id="details" class="details-panel">
+          <h2>Researcher Details</h2>
+          <p>Click nodes in the graph to view a researcher's biography and representative work.</p>
+        </div>
+      </div>
+    </main>
+    <footer>
+      <p>© 2025</p>
+    </footer>
+  </body>
+</html>

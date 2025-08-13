@@ -1,0 +1,758 @@
+/* Global styles */
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  line-height: 1.6;
+  background: #f8f9fa;
+  color: #333;
+}
+
+header {
+  background: #4f83ce;
+  color: #fff;
+  padding: 1rem;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 1.8rem;
+}
+
+/* Add a subtle bottom border to the navigation for a more defined header */
+nav {
+  border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+  padding-bottom: 0.3rem;
+}
+
+nav ul {
+  list-style: none;
+  padding: 0;
+  margin: 0.5rem 0 0;
+  display: flex;
+  gap: 1rem;
+}
+
+nav a {
+  color: #ffffff;
+  text-decoration: none;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 4px;
+}
+
+nav a:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+  text-decoration: none;
+}
+
+/* Enhanced header with subtle gradient */
+header {
+  background: linear-gradient(90deg, #4f83ce 0%, #84a8d1 100%);
+  color: #fff;
+  padding: 1rem;
+}
+
+/* Tooltip styling for relationship hover */
+.tooltip {
+  font-size: 0.85rem;
+  color: #333;
+  background: #ffffff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 6px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  pointer-events: none;
+  position: absolute;
+  z-index: 1000;
+  display: none;
+}
+
+main {
+  padding: 1rem;
+}
+
+footer {
+  text-align: center;
+  padding: 1rem;
+  background: #e9ecef;
+  font-size: 0.9rem;
+}
+
+.welcome {
+  background: #ffffff;
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  max-width: 800px;
+  margin: auto;
+}
+
+.blog {
+  background: #ffffff;
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  max-width: 800px;
+  margin: auto;
+}
+
+/* Enhanced markdown styling */
+.markdown-content {
+  line-height: 1.7;
+  color: #2c3e50;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  max-width: 100%;
+}
+
+/* Headings */
+.markdown-content h1,
+.markdown-content h2,
+.markdown-content h3,
+.markdown-content h4,
+.markdown-content h5,
+.markdown-content h6 {
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
+  line-height: 1.3;
+  color: #1a202c;
+}
+
+.markdown-content h1 {
+  font-size: 2.2rem;
+  border-bottom: 3px solid #4f83ce;
+  padding-bottom: 0.5rem;
+}
+
+.markdown-content h2 {
+  font-size: 1.8rem;
+  border-bottom: 2px solid #e2e8f0;
+  padding-bottom: 0.3rem;
+}
+
+.markdown-content h3 {
+  font-size: 1.5rem;
+  color: #4f83ce;
+}
+
+.markdown-content h4 {
+  font-size: 1.3rem;
+}
+
+.markdown-content h5 {
+  font-size: 1.1rem;
+}
+
+.markdown-content h6 {
+  font-size: 1rem;
+  color: #718096;
+}
+
+/* Paragraphs and spacing */
+.markdown-content p {
+  margin-bottom: 1.2rem;
+  text-align: justify;
+}
+
+/* Lists */
+.markdown-content ul,
+.markdown-content ol {
+  margin-bottom: 1.2rem;
+  padding-left: 2rem;
+}
+
+.markdown-content li {
+  margin-bottom: 0.5rem;
+}
+
+.markdown-content ul li {
+  list-style-type: disc;
+}
+
+.markdown-content ol li {
+  list-style-type: decimal;
+}
+
+/* Code blocks */
+.markdown-content pre {
+  background: #f7fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 1rem;
+  margin: 1.5rem 0;
+  overflow-x: auto;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.markdown-content code {
+  background: #f1f5f9;
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.9rem;
+  color: #e53e3e;
+}
+
+.markdown-content pre code {
+  background: none;
+  padding: 0;
+  color: inherit;
+}
+
+/* Blockquotes */
+.markdown-content blockquote {
+  border-left: 4px solid #4f83ce;
+  margin: 1.5rem 0;
+  padding: 0.5rem 0 0.5rem 1rem;
+  background: #f8fafc;
+  border-radius: 0 4px 4px 0;
+  font-style: italic;
+  color: #4a5568;
+}
+
+/* Tables */
+.markdown-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+  overflow-x: auto;
+  display: block;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.markdown-content table th,
+.markdown-content table td {
+  border: 1px solid #e2e8f0;
+  padding: 0.75rem;
+  text-align: left;
+}
+
+.markdown-content table th {
+  background: #f7fafc;
+  font-weight: 600;
+  color: #2d3748;
+}
+
+.markdown-content table tr:nth-child(even) {
+  background: #f8fafc;
+}
+
+/* Links */
+.markdown-content a {
+  color: #4f83ce;
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-bottom 0.2s ease;
+}
+
+.markdown-content a:hover {
+  border-bottom: 1px solid #4f83ce;
+}
+
+/* Images */
+.markdown-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  margin: 1rem 0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Horizontal rules */
+.markdown-content hr {
+  border: none;
+  border-top: 2px solid #e2e8f0;
+  margin: 2rem 0;
+}
+
+/* Emphasis */
+.markdown-content strong {
+  font-weight: 600;
+  color: #1a202c;
+}
+
+.markdown-content em {
+  font-style: italic;
+  color: #4a5568;
+}
+
+/* Strikethrough */
+.markdown-content del {
+  text-decoration: line-through;
+  color: #718096;
+}
+
+/* Task lists */
+.markdown-content input[type="checkbox"] {
+  margin-right: 0.5rem;
+}
+
+/* Better spacing for nested elements */
+.markdown-content ul ul,
+.markdown-content ol ol,
+.markdown-content ul ol,
+.markdown-content ol ul {
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+/* Ensure all markdown content respects container boundaries */
+.markdown-content * {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* Styling for individual blog posts rendered via Markdown */
+.blog-post {
+  background: #ffffff;
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  max-width: 800px;
+  margin: auto;
+}
+
+.blog-post h2 {
+  margin-top: 0;
+}
+
+.blog-post h2 i {
+  margin-right: 0.4rem;
+  color: #4f83ce;
+}
+
+.blog-post p,
+.blog-post ul,
+.blog-post li {
+  line-height: 1.6;
+}
+
+/* Hide the first H1 inside markdown content to avoid duplicating the blog title */
+.blog-post #markdown-content h1:first-of-type {
+  display: none;
+}
+
+/* Markdown editor styles */
+.markdown-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin: 2rem 0;
+}
+
+.markdown-editor textarea {
+  width: 100%;
+  min-height: 300px;
+  padding: 1rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  resize: vertical;
+  box-sizing: border-box;
+}
+
+.markdown-editor button {
+  padding: 0.75rem 1.5rem;
+  background: #4f83ce;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.2s ease;
+  align-self: flex-start;
+}
+
+.markdown-editor button:hover {
+  background: #3b6bb8;
+}
+
+/* Researcher page layout */
+.researcher-page .graph-and-details {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  gap: 1.5rem;
+  min-height: 700px;
+  align-items: flex-start;
+}
+
+#graph-container {
+  flex: 1 1 auto;
+  min-width: 600px;
+  min-height: 600px;
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 1rem;
+  /* Prevent the SVG inside from overflowing into the details panel.  This
+     ensures that nodes and edges remain confined to the graph area
+     rather than overlapping the biography/details panel. */
+  overflow: hidden;
+}
+
+#details {
+  flex: 0 0 300px;
+  min-width: 250px;
+  max-width: 350px;
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 1rem;
+  overflow-y: auto;
+  max-height: 600px;
+  position: sticky;
+  top: 1rem;
+}
+
+#details h2 {
+  margin-top: 0;
+}
+
+#details h3 {
+  margin-bottom: 0.25rem;
+}
+
+/* Icons inside section headings */
+#details h3 i {
+  margin-right: 0.3rem;
+  color: #4f83ce;
+}
+
+#details ul {
+  padding-left: 1.2rem;
+}
+
+.details-panel p {
+  margin: 0;
+}
+
+/* Search bar styles */
+.search-bar {
+  margin-bottom: 1rem;
+  position: relative;
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+/* Organization filter dropdown */
+#org-filter {
+  padding: 0.5rem;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background: #fff;
+  color: #333;
+  flex: 0 0 auto;
+  max-width: 220px;
+}
+
+/* Country filter dropdown styled similarly to #org-filter */
+#country-filter {
+  padding: 0.5rem;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background: #fff;
+  color: #333;
+  flex: 0 0 auto;
+  max-width: 220px;
+}
+
+/* Region filter dropdown styled similarly */
+#region-filter {
+  padding: 0.5rem;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background: #fff;
+  color: #333;
+  flex: 0 0 auto;
+  max-width: 220px;
+}
+
+/* Reset buttons - both filters and view */
+#reset-filters,
+#reset-view {
+  padding: 0.5rem 0.75rem;
+  font-size: 1rem;
+  border: none;
+  border-radius: 4px;
+  background: #6c757d;
+  color: #fff;
+  cursor: pointer;
+  flex: 0 0 auto;
+  transition: background-color 0.2s ease;
+}
+
+#reset-filters:hover,
+#reset-view:hover {
+  background: #5a6268;
+}
+
+#search-input {
+  flex: 1 1 auto;
+  padding: 0.5rem;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  min-width: 200px;
+}
+
+#search-results {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  position: absolute;
+  width: 100%;
+  background: #ffffff;
+  border: 1px solid #ccc;
+  border-top: none;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 10;
+}
+
+#search-results li {
+  padding: 0.5rem;
+  cursor: pointer;
+}
+
+#search-results li:hover {
+  background: #f1f1f1;
+}
+
+
+
+/* Highlight current organization */
+.current-org {
+  color: #e74c3c;
+  font-weight: bold;
+}
+
+/* Node labels */
+.node-label {
+  font-size: 0.7rem;
+  pointer-events: none;
+  fill: #333;
+}
+
+/* Blog search and tags */
+.blog-search {
+  margin-bottom: 2rem;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+.blog-search input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  font-size: 1rem;
+  margin-bottom: 1rem;
+}
+
+.blog-search input:focus {
+  outline: none;
+  border-color: #4f83ce;
+  box-shadow: 0 0 0 2px rgba(79, 131, 206, 0.2);
+}
+
+.tag-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.tag-filter button {
+  padding: 0.5rem 1rem;
+  background: #e9ecef;
+  border: 1px solid #ced4da;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+}
+
+.tag-filter button:hover {
+  background: #4f83ce;
+  color: white;
+  border-color: #4f83ce;
+}
+
+.tag-filter button.active {
+  background: #4f83ce;
+  color: white;
+  border-color: #4f83ce;
+}
+
+.blog-list {
+  list-style: none;
+  padding: 0;
+}
+
+.blog-item {
+  background: white;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  transition: all 0.2s ease;
+}
+
+.blog-item:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.blog-item h3 {
+  margin: 0 0 0.5rem 0;
+  color: #2c3e50;
+}
+
+.blog-item h3 a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.blog-item h3 a:hover {
+  color: #4f83ce;
+}
+
+.blog-item .blog-meta {
+  color: #6c757d;
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+}
+
+.blog-item .blog-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.blog-tag {
+  background: #e3f2fd;
+  color: #1976d2;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  border: 1px solid #bbdefb;
+}
+
+.blog-item .blog-excerpt {
+  color: #495057;
+  line-height: 1.6;
+  margin-top: 1rem;
+}
+
+.no-results {
+  text-align: center;
+  padding: 2rem;
+  color: #6c757d;
+  font-style: italic;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .container {
+    padding: 0 0.5rem;
+  }
+  
+  nav ul {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .welcome,
+  .blog,
+  .blog-post {
+    padding: 1rem;
+    margin: 0 0.5rem;
+  }
+  
+  .markdown-content h1 {
+    font-size: 1.8rem;
+  }
+  
+  .markdown-content h2 {
+    font-size: 1.5rem;
+  }
+  
+  .researcher-page .graph-and-details {
+    flex-direction: column;
+    flex-wrap: wrap;
+    min-height: auto;
+  }
+  
+  #graph-container,
+  #details {
+    flex: 1 1 100%;
+    min-width: auto;
+    min-height: 400px;
+    max-width: none;
+  }
+  
+  #details {
+    position: static;
+    order: 2;
+  }
+  
+  #graph-container {
+    order: 1;
+  }
+  
+  .search-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+  
+  #org-filter,
+  #country-filter,
+  #region-filter {
+    max-width: none;
+  }
+}
+
+@media (max-width: 480px) {
+  header h1 {
+    font-size: 1.5rem;
+  }
+  
+  .welcome,
+  .blog,
+  .blog-post {
+    padding: 0.75rem;
+    margin: 0 0.25rem;
+  }
+  
+  .markdown-content {
+    font-size: 0.9rem;
+  }
+  
+  .markdown-content h1 {
+    font-size: 1.6rem;
+  }
+  
+  .markdown-content h2 {
+    font-size: 1.3rem;
+  }
+}
