@@ -10,6 +10,7 @@ from typing import Any, Dict, List, Optional, Tuple
 from tqdm import tqdm
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import threading
+from datetime import datetime, timedelta
 
 WINDOW_PREFIX = "window.dataset ="
 WINDOW_SUFFIX_SEMICOLON = ";"
@@ -24,6 +25,7 @@ class Config:
     only_missing: bool
     dry_run: bool
     workers: int
+    force_update: bool  # Force update regardless of last update date
 
 def load_dataset(path: str) -> Dict[str, Any]:
     """Load dataset from JSON or JS (window.dataset = {...};)."""
@@ -139,6 +141,26 @@ def summarize_total(nodes: List[Dict[str, Any]]) -> int:
             total += ci
     return total
 
+def should_update_node(node: Dict[str, Any], cfg: Config) -> Tuple[bool, str]:
+    """Check if a node should be updated based on last update date."""
+    if cfg.force_update:
+        return True, "Force update enabled"
+    
+    last_update = node.get("last_citation_update")
+    if not last_update:
+        return True, "No previous update date"
+    
+    try:
+        last_update_date = datetime.fromisoformat(last_update.replace('Z', '+00:00'))
+        six_months_ago = datetime.now(last_update_date.tzinfo) - timedelta(days=180)
+        
+        if last_update_date < six_months_ago:
+            return True, f"Last update {last_update_date.date()} is older than 6 months"
+        else:
+            return False, f"Last update {last_update_date.date()} is recent (within 6 months)"
+    except Exception as e:
+        return True, f"Invalid date format: {e}"
+
 def process_single_node(node: Dict[str, Any], cfg: Config) -> Tuple[str, Optional[int], bool, str]:
     """Process a single node and return (name, citations, success, message)."""
     scholarid = node.get("scholarid") or node.get("scholarId") or node.get("scholar_id")
@@ -151,6 +173,12 @@ def process_single_node(node: Dict[str, Any], cfg: Config) -> Tuple[str, Optiona
         node.setdefault("scholarLink", None)
         return name, None, False, "No scholar page"
     
+    # Check if we should update based on last update date
+    should_update, reason = should_update_node(node, cfg)
+    if not should_update:
+        node["scholarLink"] = scholar_link_from_id(scholarid)
+        return name, None, False, f"Skipped: {reason}"
+    
     if cfg.only_missing and safe_int(node.get("citations")) is not None:
         node["scholarLink"] = scholar_link_from_id(scholarid)
         return name, None, False, "Already has citations"
@@ -162,6 +190,8 @@ def process_single_node(node: Dict[str, Any], cfg: Config) -> Tuple[str, Optiona
     if val is not None:
         node["citations"] = val
         node["scholarLink"] = scholar_link_from_id(scholarid)
+        # Add current timestamp as last update date
+        node["last_citation_update"] = datetime.now().isoformat()
         return name, val, True, f"Updated: {val}"
     else:
         return name, None, False, "Failed to fetch citations"
@@ -236,6 +266,7 @@ def main():
     parser.add_argument("--backoff", type=float, default=1.5, help="Exponential backoff factor (default: 1.5)")
     parser.add_argument("--workers", type=int, default=8, help="Number of parallel workers (default: 8)")
     parser.add_argument("--only-missing", action="store_true", help="Only fetch for nodes missing 'citations'")
+    parser.add_argument("--force-update", action="store_true", help="Force update all nodes regardless of last update date")
     parser.add_argument("--dry-run", action="store_true", help="Show what would change without writing files")
     parser.add_argument("--no-write-js", action="store_true", help="Do not write dataset.js")
     parser.add_argument("--no-write-json", action="store_true", help="Do not write dataset.json")
@@ -253,9 +284,10 @@ def main():
         only_missing=bool(args.only_missing),
         dry_run=bool(args.dry_run),
         workers=max(1, int(args.workers)),
+        force_update=bool(args.force_update),
     )
 
-    print(f"[cfg] engine={cfg.engine} delay={cfg.delay_sec}s retries={cfg.max_retries} backoff={cfg.backoff} workers={cfg.workers} only_missing={cfg.only_missing}")
+    print(f"[cfg] engine={cfg.engine} delay={cfg.delay_sec}s retries={cfg.max_retries} backoff={cfg.backoff} workers={cfg.workers} only_missing={cfg.only_missing} force_update={cfg.force_update}")
 
     data = load_dataset(args.input)
     nodes = data.get("nodes", [])
