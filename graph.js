@@ -99,6 +99,10 @@ document.addEventListener('DOMContentLoaded', () => {
         detailsDiv.innerHTML =
           '<h2>Researcher Details</h2><p>Click nodes in the graph to view a researcher\'s biography and representative work.</p>';
       }
+      // Reset the user selection flag to allow auto-fit again
+      if (typeof userHasSelectedNode !== 'undefined') {
+        userHasSelectedNode = false;
+      }
     });
   }
 
@@ -165,23 +169,22 @@ function renderGraph(data) {
     const graphWidthWithPadding = graphWidth + padding * 2;
     const graphHeightWithPadding = graphHeight + padding * 2;
     
-    // Determine scale to fit graph within the SVG dimensions.  Use 80% of
-    // available space to provide a comfortable margin around the nodes.
-    const scale = Math.min(width / graphWidthWithPadding, height / graphHeightWithPadding) * 0.8;
+    // Determine scale to fit graph within the SVG dimensions.  Use 95% of
+    // available space to provide a closer, more detailed view of the nodes.
+    const scale = Math.min(width / graphWidthWithPadding, height / graphHeightWithPadding) * 0.95;
     
-    // Ensure scale doesn't exceed 1 (no zoom in on initial load)
-    const finalScale = Math.min(scale, 1);
+    // Allow some zoom in on initial load for a larger default view
+    const finalScale = Math.min(scale, 1.2);
     
     // Compute translation to centre the graph.  We translate the graph so
     // that its centre aligns with the centre of the SVG.
     const tx = width / 2 - (xExtent[0] + graphWidth / 2) * finalScale;
     const ty = height / 2 - (yExtent[0] + graphHeight / 2) * finalScale;
     
-    // Apply the transform using d3.zoom.  Use a transition for a smooth
-    // initial adjustment.
+    // Apply the transform using d3.zoom.  Use a very short transition for quick loading.
     svg
       .transition()
-      .duration(1000)
+      .duration(150)
       .call(zoom.transform, d3.zoomIdentity.translate(tx, ty).scale(finalScale));
   }
 
@@ -194,23 +197,30 @@ function renderGraph(data) {
   // other event handlers (search suggestions and link clicks).
   window.centerOnNode = function (node) {
     if (!node) return;
-    const transform = d3.zoomTransform(svg.node());
-    const k = transform.k || 1;
+    // Mark that user has manually selected a node
+    userHasSelectedNode = true;
+    
+    // Zoom in to a comfortable level for viewing the selected node
+    const zoomLevel = 2.5; // Increased zoom level for better detail
+    
     // Compute translation offsets so that the node appears at the centre
-    // of the view.  Multiply node coordinates by current scale.
-    const tx = width / 2 - node.x * k;
-    const ty = height / 2 - node.y * k;
+    // of the view.  Use the zoom level for positioning.
+    const tx = width / 2 - node.x * zoomLevel;
+    const ty = height / 2 - node.y * zoomLevel;
+    
     svg
       .transition()
       .duration(750)
       .call(
         zoom.transform,
-        d3.zoomIdentity.translate(tx, ty).scale(k)
+        d3.zoomIdentity.translate(tx, ty).scale(zoomLevel)
       );
   };
 
   // Expose a helper to reset the view to show the entire graph
   window.resetView = function () {
+    // Reset the flag since user is manually resetting view
+    userHasSelectedNode = false;
     // Force a more aggressive fit
     const xExtent = d3.extent(data.nodes, (d) => d.x);
     const yExtent = d3.extent(data.nodes, (d) => d.y);
@@ -227,16 +237,16 @@ function renderGraph(data) {
     const graphWidthWithPadding = graphWidth + padding * 2;
     const graphHeightWithPadding = graphHeight + padding * 2;
     
-    // Use a more conservative scale factor
-    const scale = Math.min(width / graphWidthWithPadding, height / graphHeightWithPadding) * 0.7;
-    const finalScale = Math.min(scale, 1);
+    // Use a larger scale factor for a more detailed view
+    const scale = Math.min(width / graphWidthWithPadding, height / graphHeightWithPadding) * 0.85;
+    const finalScale = Math.min(scale, 1.1);
     
     const tx = width / 2 - (xExtent[0] + graphWidth / 2) * finalScale;
     const ty = height / 2 - (yExtent[0] + graphHeight / 2) * finalScale;
     
     svg
       .transition()
-      .duration(1000)
+      .duration(200)
       .call(zoom.transform, d3.zoomIdentity.translate(tx, ty).scale(finalScale));
   };
 
@@ -274,14 +284,20 @@ function renderGraph(data) {
         .strength(0.2)
     );
 
+  // Track if user has manually selected a node to prevent auto-reset
+  let userHasSelectedNode = false;
+  
   // Once the simulation has cooled and stopped, fit the graph to the
   // container.  Using the 'end' event ensures node positions are
   // reasonably settled before computing the bounding box.
   simulation.on('end', () => {
-    // Add a small delay to ensure the simulation is fully settled
+    // Minimal delay to ensure the simulation is fully settled
     setTimeout(() => {
-      fitGraphToContainer();
-    }, 100);
+      // Only auto-fit if user hasn't manually selected a node
+      if (!userHasSelectedNode) {
+        fitGraphToContainer();
+      }
+    }, 50);
   });
 
   // Draw links. Use the zoom group so zoom/pan transforms apply.
@@ -438,21 +454,20 @@ function renderGraph(data) {
     }
   });
 
-  // Compute a scale for node radius based on publication (citation) count.
-  // We treat the pubCount property on each node as a proxy for the number of
-  // citations or publications so researchers with more contributions appear
-  // larger.  Use a square root scale to tame the range and prevent
+  // Compute a scale for node radius based on citation count.
+  // We use the citations property on each node so researchers with more citations
+  // appear larger.  Use a square root scale to tame the range and prevent
   // extremely large nodes.  Provide sensible defaults if all nodes have
-  // the same count.
-  const pubExtent = d3.extent(data.nodes, (d) => {
-    return typeof d.pubCount === 'number' && isFinite(d.pubCount) ? d.pubCount : 1;
+  // the same count or no citations data.
+  const citationExtent = d3.extent(data.nodes, (d) => {
+    return typeof d.citations === 'number' && isFinite(d.citations) ? d.citations : 1;
   });
-  const minPub = pubExtent[0] === pubExtent[1] ? Math.max(pubExtent[0] - 1, 0) : pubExtent[0];
-  const maxPub = pubExtent[0] === pubExtent[1] ? pubExtent[1] + 1 : pubExtent[1];
-  const radiusScale = d3.scaleSqrt().domain([minPub, maxPub]).range([4, 28]);
+  const minCitations = citationExtent[0] === citationExtent[1] ? Math.max(citationExtent[0] - 1, 0) : citationExtent[0];
+  const maxCitations = citationExtent[0] === citationExtent[1] ? citationExtent[1] + 1 : citationExtent[1];
+  const radiusScale = d3.scaleSqrt().domain([minCitations, maxCitations]).range([4, 28]);
 
-  // Draw nodes.  Set the radius based on the publication count so that
-  // prolific researchers stand out.  Colour nodes based on their
+  // Draw nodes.  Set the radius based on the citation count so that
+  // researchers with more citations stand out.  Colour nodes based on their
   // category (industry vs academia).
   const node = g
     .append('g')
@@ -464,7 +479,7 @@ function renderGraph(data) {
     .enter()
     .append('circle')
     .attr('r', (d) => {
-      const value = typeof d.pubCount === 'number' && isFinite(d.pubCount) ? d.pubCount : 1;
+      const value = typeof d.citations === 'number' && isFinite(d.citations) ? d.citations : 1;
       return radiusScale(value);
     })
     .attr('fill', (d) => (d.category === 'industry' ? '#e67e22' : '#8e44ad'))
@@ -503,6 +518,10 @@ function renderGraph(data) {
 
   // Click event to show details
   node.on('click', (event, d) => {
+    // Mark that user has manually selected a node
+    if (typeof userHasSelectedNode !== 'undefined') {
+      userHasSelectedNode = true;
+    }
     // Reset all node colors based on their category
     node.attr('fill', (n) => (n.category === 'industry' ? '#e67e22' : '#8e44ad'));
     // Highlight the selected node
@@ -557,7 +576,11 @@ function showDetails(researcher) {
     html += `<p><strong><i class="fas fa-graduation-cap"></i> Google Scholar:</strong> <a href="${scholarUrl}" target="_blank" rel="noopener">View Profile</a></p>`;
     
     // Citations section under Google Scholar
-    html += '<p><strong>Total Citations:</strong> <span id="citation-count">Loading...</span></p>';
+    if (researcher.citations) {
+      html += `<p><strong>Total Citations:</strong> ${researcher.citations.toLocaleString()}</p>`;
+    } else {
+      html += '<p><strong>Total Citations:</strong> <em>Not available</em></p>';
+    }
   }
   // Organizations
   if (researcher.organizations && researcher.organizations.length > 0) {
@@ -1036,6 +1059,15 @@ function setupSearch(data) {
   if (!searchInput || !resultsList) return;
   // Hide results initially
   resultsList.style.display = 'none';
+  
+  // Add ESC key functionality to hide search results
+  searchInput.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') {
+      resultsList.style.display = 'none';
+      searchInput.blur(); // Remove focus from input
+    }
+  });
+  
   searchInput.addEventListener('input', (event) => {
     const query = event.target.value;
     // Clear any previous results
