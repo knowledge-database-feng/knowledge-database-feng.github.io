@@ -159,10 +159,6 @@
         {
           "target": "geoffrey-hinton",
           "type": "mentor-colleague"
-        },
-        {
-          "target": "yoshua-bengio",
-          "type": "colleague"
         }
       ],
       "scholarid": "WLN3QrAAAAAJ",
@@ -215,10 +211,6 @@
         {
           "target": "geoffrey-hinton",
           "type": "mentor-colleague"
-        },
-        {
-          "target": "yann-lecun",
-          "type": "colleague"
         }
       ],
       "scholarid": "kukA0LcAAAAJ",
@@ -13358,7 +13350,12 @@
       ],
       "representativeWorks": [],
       "awards": [],
-      "relationships": [],
+      "relationships": [
+        {
+          "target": "robert-pless",
+          "type": "student"
+        }
+      ],
       "country": "United States",
       "region": "Americas",
       "scholarid": "ZBgGyh8AAAAJ",
@@ -15190,7 +15187,12 @@
       ],
       "representativeWorks": [],
       "awards": [],
-      "relationships": [],
+      "relationships": [
+        {
+          "target": "nathan-jacobs",
+          "type": "mentor"
+        }
+      ],
       "country": "United States",
       "region": "Americas",
       "scholarid": "uVBjUtAAAAAJ",
@@ -18116,9 +18118,20 @@
           "period": "present"
         }
       ],
-      "representativeWorks": [],
+      "representativeWorks": [
+        {
+          "title": "U-Net",
+          "year": "2015",
+          "awards": []
+        }
+      ],
       "awards": [],
-      "relationships": [],
+      "relationships": [
+        {
+          "target": "olaf-ronneberger",
+          "type": "colleague"
+        }
+      ],
       "country": "Germany",
       "region": "Europe",
       "scholarid": "0VAe-TQAAAAJ",
@@ -23646,6 +23659,111 @@
       "last_citation_update": "2025-08-14T12:14:59.340920"
     },
     {
+      "id": "andrej-karpathy",
+      "name": "Andrej Karpathy",
+      "lifeSpan": "",
+      "website": "https://karpathy.ai/",
+      "category": "industry",
+      "organizations": [
+        {
+          "name": "Eureka Labs",
+          "period": "2024–present"
+        },
+        {
+          "name": "OpenAI",
+          "period": "2023–2024"
+        },
+        {
+          "name": "Tesla (Sr. Director of AI)",
+          "period": "2017–2022"
+        },
+        {
+          "name": "OpenAI",
+          "period": "2015–2017"
+        },
+        {
+          "name": "Stanford University",
+          "period": "2011–2015"
+        },
+        {
+          "name": "University of British Columbia",
+          "period": "2009–2011"
+        },
+        {
+          "name": "University of Toronto",
+          "period": "2005–2009"
+        }
+      ],
+      "representativeWorks": [
+        {
+          "title": "CS 231n: Convolutional Neural Networks for Visual Recognition",
+          "year": "2015",
+          "awards": []
+        },
+        {
+          "title": "Deep Visual-Semantic Alignments for Generating Image Descriptions",
+          "year": "2015",
+          "awards": []
+        },
+        {
+          "title": "Large-Scale Video Classification with Convolutional Neural Networks",
+          "year": "2014",
+          "awards": []
+        },
+        {
+          "title": "The Unreasonable Effectiveness of Recurrent Neural Networks",
+          "year": "2015",
+          "awards": []
+        }
+      ],
+      "awards": [],
+      "relationships": [
+        {
+          "target": "fei-fei-li",
+          "type": "student"
+        }
+      ],
+      "country": "United States",
+      "region": "Americas",
+      "scholarid": "l8WuQJgAAAAJ",
+      "citations": 74825,
+      "scholarLink": "https://scholar.google.com/citations?user=l8WuQJgAAAAJ",
+      "last_citation_update": "2025-08-14T12:15:01.533629"
+    },
+    {
+      "id": "olaf-ronneberger",
+      "name": "Olaf Ronneberger",
+      "lifeSpan": "",
+      "website": "",
+      "category": "academia",
+      "organizations": [
+        {
+          "name": "University of Freiburg",
+          "period": "present"
+        }
+      ],
+      "representativeWorks": [
+        {
+          "title": "U-Net",
+          "year": "2015",
+          "awards": []
+        }
+      ],
+      "awards": [],
+      "relationships": [
+        {
+          "target": "thomas-brox",
+          "type": "colleague"
+        }
+      ],
+      "country": "Germany",
+      "region": "Europe",
+      "scholarid": "7jrO1NwAAAAJ",
+      "citations": 207645,
+      "scholarLink": "https://scholar.google.com/citations?user=7jrO1NwAAAAJ",
+      "last_citation_update": "2025-08-14T12:15:01.533629"
+    },
+    {
       "id": "zuzana-kukelova",
       "name": "Zuzana Kukelova",
       "lifeSpan": "",
@@ -23680,9 +23798,19 @@
       "relationship": "mentor-colleague"
     },
     {
-      "source": "yann-lecun",
-      "target": "yoshua-bengio",
+      "source": "olaf-ronneberger",
+      "target": "thomas-brox",
       "relationship": "colleague"
+    },
+    {
+      "source": "robert-pless",
+      "target": "nathan-jacobs",
+      "relationship": "mentor"
+    },
+    {
+      "source": "fei-fei-li",
+      "target": "andrej-karpathy",
+      "relationship": "mentor"
     }
   ]
 }
