@@ -10236,7 +10236,7 @@ window.dataset = {
       "organizations": [
         {
           "name": "Massachusetts Institute of Technology",
-          "period": "present"
+          "period": "present-present"
         }
       ],
       "representativeWorks": [],

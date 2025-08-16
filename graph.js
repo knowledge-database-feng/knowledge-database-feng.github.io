@@ -674,11 +674,12 @@ function levenshtein(a, b) {
 
 // Add colleague relationships between researchers who share one or more
 // organizations.  For every pair of researchers with at least one
-// overlapping organization name, a new link with relationship
-// "colleague" is created if one does not already exist.  The
-// details field records the organization names where they overlapped.
+// overlapping organization name AND time overlap, a new link with relationship
+// "colleague" is created if one does not already exist.
+// The details field records the organization names where they overlapped.
+// "present" is treated as a specific point in time (current year) for overlap calculations.
 function addColleagueRelationships(dataset) {
-  // Map organization name -> list of researcher nodes
+  // Map organization name -> list of researcher nodes with their time periods
   const orgMap = {};
   dataset.nodes.forEach((node) => {
     if (node.organizations) {
@@ -690,7 +691,7 @@ function addColleagueRelationships(dataset) {
         // available.
         const name = org.sanitized || org.name;
         if (!orgMap[name]) orgMap[name] = [];
-        orgMap[name].push(node);
+        orgMap[name].push({ node, org });
       });
     }
     // Ensure the relationships array exists on every node
@@ -698,6 +699,83 @@ function addColleagueRelationships(dataset) {
       node.relationships = [];
     }
   });
+  
+  // Filter out organizations where researchers don't have valid colleague relationships
+  // This prevents creating links for organizations where they were in different time periods
+  const filteredOrgMap = {};
+  Object.entries(orgMap).forEach(([orgName, list]) => {
+    const validPairs = [];
+    
+    // Check each pair of researchers at this organization
+    for (let i = 0; i < list.length; i++) {
+      for (let j = i + 1; j < list.length; j++) {
+        const a = list[i];
+        const b = list[j];
+        
+        // Only include this pair if they should be colleagues
+        if (shouldCreateColleagueLink(a.org.period, b.org.period)) {
+          validPairs.push({ a, b });
+        }
+      }
+    }
+    
+    // Only keep organizations that have valid colleague pairs
+    if (validPairs.length > 0) {
+      filteredOrgMap[orgName] = list;
+    }
+  });
+  
+  // Use the filtered organization map
+  const finalOrgMap = filteredOrgMap;
+  
+  // Helper function to check if two time periods overlap
+  function shouldCreateColleagueLink(period1, period2) {
+    // Parse periods like "1991–1992", "2005–2007", "1993–present", "present-present", etc.
+    const parsePeriod = (period) => {
+      if (!period) return { start: null, end: null };
+      
+      // Handle "present" case - treat as a specific point in time
+      if (period === "present") {
+        // For now, treat "present" as a specific year (will be updated later)
+        const currentYear = new Date().getFullYear();
+        return { start: currentYear, end: currentYear };
+      }
+      
+      // Handle "present-present" case - treat as current year to current year
+      if (period === "present-present") {
+        const currentYear = new Date().getFullYear();
+        return { start: currentYear, end: currentYear };
+      }
+      
+      const parts = period.split('–');
+      if (parts.length !== 2) return { start: null, end: null };
+      
+      const start = parseInt(parts[0]);
+      // Handle end period - check if it contains "present" (with or without parentheses)
+      let end;
+      if (parts[1].includes("present")) {
+        end = new Date().getFullYear();
+      } else {
+        end = parseInt(parts[1]);
+      }
+      
+      if (isNaN(start) || isNaN(end)) return { start: null, end: null };
+      
+      return { start, end };
+    };
+    
+    const time1 = parsePeriod(period1);
+    const time2 = parsePeriod(period2);
+    
+    // If we can't parse the periods, assume no overlap for safety
+    if (!time1.start || !time2.start || !time1.end || !time2.end) {
+      return false;
+    }
+    
+    // Check for overlap: (start1 <= end2) && (start2 <= end1)
+    return (time1.start <= time2.end) && (time2.start <= time1.end);
+  }
+  
   // Build a set of existing link pairs (source|target) to avoid
   // duplicating relationships already defined in the dataset.  We use
   // sorted keys so that (A,B) and (B,A) are considered the same pair.
@@ -708,19 +786,26 @@ function addColleagueRelationships(dataset) {
     const key = srcId < tgtId ? `${srcId}|${tgtId}` : `${tgtId}|${srcId}`;
     existingPairs.add(key);
   });
+  
   // Temporary structure to accumulate organizations shared by each pair
   const pairDetails = {};
-  Object.entries(orgMap).forEach(([orgName, list]) => {
+  Object.entries(finalOrgMap).forEach(([orgName, list]) => {
     for (let i = 0; i < list.length; i++) {
       for (let j = i + 1; j < list.length; j++) {
         const a = list[i];
         const b = list[j];
-        const key = a.id < b.id ? `${a.id}|${b.id}` : `${b.id}|${a.id}`;
+        
+        // Double-check time overlap for this specific pair
+        if (!shouldCreateColleagueLink(a.org.period, b.org.period)) {
+          continue; // Skip if no time overlap
+        }
+        
+        const key = a.node.id < b.node.id ? `${a.node.id}|${b.node.id}` : `${b.node.id}|${a.node.id}`;
         // Skip if this pair already has a defined relationship in the
         // dataset links to avoid duplicating edges.
         if (existingPairs.has(key)) continue;
         if (!pairDetails[key]) {
-          pairDetails[key] = { source: a.id, target: b.id, orgs: [] };
+          pairDetails[key] = { source: a.node.id, target: b.node.id, orgs: [] };
         }
         pairDetails[key].orgs.push(orgName);
       }
