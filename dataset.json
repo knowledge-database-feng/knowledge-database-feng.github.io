@@ -10241,7 +10241,12 @@
       ],
       "representativeWorks": [],
       "awards": [],
-      "relationships": [],
+      "relationships": [
+        {
+          "target": "xiaoou-tang",
+          "type": "phd-student"
+        }
+      ],
       "country": "United States",
       "region": "Americas",
       "scholarid": "DhtAFkwAAAAJ",
@@ -20210,7 +20215,7 @@
     {
       "id": "xiaoou-tang",
       "name": "Xiaoou Tang",
-      "lifeSpan": "",
+      "lifeSpan": "24 January 1968–15 December 2023",
       "website": "https://www.ie.cuhk.edu.hk/people/xotang.shtml",
       "category": "academia",
       "organizations": [
@@ -20221,7 +20226,12 @@
       ],
       "representativeWorks": [],
       "awards": [],
-      "relationships": [],
+      "relationships": [
+        {
+          "target": "kaiming-he",
+          "type": "phd-mentor"
+        }
+      ],
       "country": "Hong Kong",
       "region": "Asia",
       "scholarid": "qpBtpGsAAAAJ",
@@ -23811,6 +23821,11 @@
       "source": "fei-fei-li",
       "target": "andrej-karpathy",
       "relationship": "mentor"
+    },
+    {
+      "source": "xiaoou-tang",
+      "target": "kaiming-he",
+      "relationship": "phd-mentor"
     }
   ]
 }
